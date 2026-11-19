@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bus Ticket Booking</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #1565c0;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 85%;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #cccccc;
+        }
+
+        h2 {
+            color: #1565c0;
+            text-align: center;
+        }
+
+        .search-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #1565c0;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #003c8f;
+        }
+
+        .bus-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .bus-card h3 {
+            color: #1565c0;
+        }
+
+        .book-btn {
+            background: green;
+        }
+
+        .book-btn:hover {
+            background: darkgreen;
+        }
+
+        #message {
+            text-align: center;
+            color: green;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        footer {
+            background: #1565c0;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>BUS TICKET BOOKING</h1>
+    <p>Book Your Journey Easily!</p>
+</header>
+
+<div class="container">
+
+    <h2>Search Your Bus</h2>
+
+    <div class="search-box">
+
+        <select id="source">
+            <option value="">Select Source</option>
+            <option value="Warangal">Warangal</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Vijayawada">Vijayawada</option>
+        </select>
+
+        <select id="destination">
+            <option value="">Select Destination</option>
+            <option value="Warangal">Warangal</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Vijayawada">Vijayawada</option>
+        </select>
+
+        <input type="date" id="journeyDate">
+
+        <input type="number" id="passengers"
+               min="1" max="6" value="1"
+               placeholder="Passengers">
+
+        <button onclick="searchBuses()">Search Buses</button>
+
+    </div>
+
+    <h2>Available Buses</h2>
+
+    <div id="busList"></div>
+
+    <div id="message"></div>
+
+</div>
+
+<footer>
+    <p>© 2026 Bus Ticket Booking System</p>
+</footer>
+
+<script>
+
+    let buses = [
+        {
+            name: "Orange Travels",
+            source: "Warangal",
+            destination: "Hyderabad",
+            price: 500,
+            seats: 25
+        },
+        {
+            name: "VRL Travels",
+            source: "Warangal",
+            destination: "Hyderabad",
+            price: 650,
+            seats: 18
+        },
+        {
+            name: "SRS Travels",
+            source: "Hyderabad",
+            destination: "Vijayawada",
+            price: 700,
+            seats: 30
+        },
+        {
+            name: "Morning Star",
+            source: "Vijayawada",
+            destination: "Warangal",
+            price: 600,
+            seats: 20
+        }
+    ];
+
+    const dateInput = document.getElementById("journeyDate");
+
+    // Set tomorrow as the default journey date
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    dateInput.value =
+        tomorrow.getFullYear() + "-" +
+        String(tomorrow.getMonth() + 1).padStart(2, "0") + "-" +
+        String(tomorrow.getDate()).padStart(2, "0");
+
+    let selectedDate = dateInput.value;
+
+    function displayBuses(busArray) {
+
+        let output = "";
+
+        if (busArray.length === 0) {
+            document.getElementById("busList").innerHTML =
+                "<p>No buses found for this route!</p>";
+            return;
+        }
+
+        busArray.forEach(function(bus) {
+
+            let index = buses.indexOf(bus);
+
+            output += `
+                <div class="bus-card">
+                    <h3>${bus.name}</h3>
+
+                    <p><b>Source:</b> ${bus.source}</p>
+                    <p><b>Destination:</b> ${bus.destination}</p>
+                    <p><b>Journey Date:</b> ${selectedDate}</p>
+                    <p><b>Ticket Price:</b> ₹${bus.price}</p>
+                    <p><b>Available Seats:</b> ${bus.seats}</p>
+
+                    <button class="book-btn"
+                        onclick="bookTicket(${index})">
+                        Book Now
+                    </button>
+                </div>
+            `;
+
+        });
+
+        document.getElementById("busList").innerHTML = output;
+    }
+
+    function searchBuses() {
+
+        let source = document.getElementById("source").value;
+        let destination = document.getElementById("destination").value;
+        let date = dateInput.value;
+
+        if (source === "" || destination === "" || date === "") {
+            alert("Please enter all search details!");
+            return;
+        }
+
+        if (source === destination) {
+            alert("Source and destination cannot be the same!");
+            return;
+        }
+
+        if (date < dateInput.min && dateInput.min) {
+            alert("Please select a valid date!");
+            return;
+        }
+
+        selectedDate = date;
+
+        let result = buses.filter(function(bus) {
+            return bus.source === source &&
+                   bus.destination === destination;
+        });
+
+        displayBuses(result);
+        document.getElementById("message").innerHTML = "";
+    }
+
+    function bookTicket(index) {
+
+        let count = Number(document.getElementById("passengers").value);
+
+        if (!Number.isInteger(count) || count < 1 || count > 6) {
+            alert("Select between 1 and 6 passengers!");
+            return;
+        }
+
+        let bus = buses[index];
+
+        if (count > bus.seats) {
+            alert("Not enough seats available!");
+            return;
+        }
+
+        bus.seats = bus.seats - count;
+
+        let total = bus.price * count;
+
+        document.getElementById("message").innerHTML =
+            "Booking Successful!<br>" +
+            "Bus: " + bus.name + "<br>" +
+            "Tickets: " + count + "<br>" +
+            "Total Amount: ₹" + total;
+
+        searchBuses();
+    }
+
+    displayBuses(buses);
+
+</script>
+
+</body>
+</html>
